@@ -5,16 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arabian Nights Helper</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a0633; color: white; padding: 20px; max-width: 600px; margin: auto; }
-        h1 { text-align: center; color: #ffd700; text-shadow: 2px 2px #8b4513; }
-        .card { background: #2d0a31; border: 2px solid #ffd700; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a0633; color: white; padding: 20px; max-width: 600px; margin: auto; }
+        h1 { text-align: center; color: #ffd700; }
+        .card { background: #2d0a31; border: 2px solid #ffd700; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
         label { display: block; margin-top: 15px; font-weight: bold; color: #ffcc33; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; margin-top: 25px; background: #ffd700; border: none; border-radius: 8px; font-weight: bold; font-size: 18px; cursor: pointer; color: #1a0633; transition: 0.3s; }
-        button:hover { background: #fff; }
-        #results-area { margin-top: 30px; display: none; padding: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; border-left: 5px solid #ffd700; }
-        .para-num { font-size: 48px; color: #ffd700; display: block; text-align: center; }
-        .text-detail { font-style: italic; color: #ddd; margin-bottom: 10px; text-align: center; }
+        select, input { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; margin-top: 20px; background: #ffd700; border: none; border-radius: 8px; font-weight: bold; font-size: 18px; cursor: pointer; color: #1a0633; }
+        .hidden { display: none; }
+        #results-area { margin-top: 20px; padding: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; border-left: 5px solid #ffd700; }
+        .real-encounter { font-size: 24px; color: #ffd700; text-align: center; margin-bottom: 15px; font-weight: bold; }
+        .para-num { font-size: 48px; color: #ffd700; display: block; text-align: center; margin-top: 10px; }
+        .reaction-btn { background: #4a1c51; color: white; margin-top: 8px; text-align: left; }
     </style>
 </head>
 <body>
@@ -22,24 +23,58 @@
     <h1>Book of Tales Helper</h1>
 
     <div class="card">
-        <label>1. Search Encounter Card</label>
-        <input type="text" id="cardInput" placeholder="e.g. Wizard, Elephant, Zaila..." list="cardList">
-        <datalist id="cardList"></datalist>
+        <label>1. Select Encounter Type</label>
+        <select id="typeSelect" onchange="updateType()">
+            <option value="">-- Choose --</option>
+            <option value="City">City</option>
+            <option value="Character">Character</option>
+            <option value="Terrain">Terrain</option>
+        </select>
 
-        <label>2. Your Roll (1-12)</label>
-        <input type="number" id="rollInput" min="1" max="12" value="1">
+        <div id="cardSection" class="hidden">
+            <label>2. Select Encounter Card</label>
+            <select id="cardSelect"></select>
+        </div>
 
-        <button onclick="lookupEncounter()">Find Reactions</button>
+        <div id="charPath" class="hidden">
+            <label>3. Time of Day</label>
+            <select id="timeOfDay">
+                <option value="Morning">Morning</option>
+                <option value="Noon">Noon</option>
+                <option value="Night">Night</option>
+            </select>
+        </div>
+
+        <div id="terrainPath" class="hidden">
+            <label>3. Standing On (Terrain Key)</label>
+            <select id="terrainKey">
+                <option value="Sea">Sea</option>
+                <option value="Desert">Desert</option>
+                <option value="Island">Island</option>
+                <option value="Forest">Forest</option>
+                <option value="City">City</option>
+                <option value="Mountains">Mountains</option>
+            </select>
+        </div>
+
+        <div id="rollSection" class="hidden">
+            <label>4. Modified Roll (1-12)</label>
+            <input type="number" id="rollInput" min="1" max="12" value="1">
+            <button onclick="processEncounter()">Show Encounter</button>
+        </div>
     </div>
 
-    <div id="results-area">
-        <div id="encounterDesc" class="text-detail"></div>
-        <label>3. Choose your Reaction:</label>
-        <div id="reactionButtons"></div>
-        <hr>
-        <div id="finalParagraph" style="display:none; text-align:center;">
-            <p>Go to Paragraph:</p>
+    <div id="results-area" class="hidden">
+        <div id="realEncounterName" class="real-encounter"></div>
+        <div id="reactionArea">
+            <label>Choose your Reaction:</label>
+            <div id="reactionButtons"></div>
+        </div>
+        <div id="finalParagraph" class="hidden" style="text-align:center;">
+            <hr>
+            <p>Read Paragraph:</p>
             <span class="para-num" id="paraValue"></span>
+            <button onclick="location.reload()" style="background:#666; color:white; font-size:14px; padding:8px;">Reset</button>
         </div>
     </div>
 
