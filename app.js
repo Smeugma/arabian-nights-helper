@@ -1,4 +1,5 @@
 function updateType() { 
+    console.log("Type changed!"); // This should pop up in the background
     const type = document.getElementById('typeSelect').value;
     const cardSection = document.getElementById('cardSection');
     const rollSection = document.getElementById('rollSection');
@@ -6,17 +7,32 @@ function updateType() {
     const terrainPath = document.getElementById('terrainPath');
     const cardSelect = document.getElementById('cardSelect');
 
-    // Reset visibility
-    [cardSection, rollSection, charPath, terrainPath].forEach(el => el.classList.add('hidden'));
-    document.getElementById('results-area').classList.add('hidden');
+    // Reset all sections to hidden first
+    cardSection.style.display = 'none';
+    rollSection.style.display = 'none';
+    charPath.style.display = 'none';
+    terrainPath.style.display = 'none';
 
-    if (!type) return;
+    if (!type) {
+        console.log("No type selected");
+        return;
+    }
 
-    // Filter cards based on Type
+    console.log("Selected Type:", type);
+
+    // FILTERING LOGIC
+    // We use [ "Encounter Type" ] in brackets to handle spaces
     const filteredCards = [...new Set(encounterData
         .filter(row => row["Encounter Type"] === type)
         .map(row => row["Encounter Card"])
     )].sort();
+
+    console.log("Cards found:", filteredCards.length);
+
+    if (filteredCards.length === 0) {
+        alert("Warning: No cards found for type: " + type + ". Check your data.js column names!");
+        return;
+    }
 
     // Populate Card Dropdown
     cardSelect.innerHTML = '<option value="">-- Select Card --</option>';
@@ -27,60 +43,11 @@ function updateType() {
         cardSelect.appendChild(opt);
     });
 
-    cardSection.classList.remove('hidden');
-    rollSection.classList.remove('hidden');
+    // Show the basic sections
+    cardSection.style.display = 'block';
+    rollSection.style.display = 'block';
 
     // Show specific path
-    if (type === "Character") charPath.classList.remove('hidden');
-    if (type === "Terrain") terrainPath.classList.remove('hidden');
-}
-
-function processEncounter() {
-    const type = document.getElementById('typeSelect').value;
-    const card = document.getElementById('cardSelect').value;
-    const roll = parseInt(document.getElementById('rollInput').value);
-    
-    let matches = encounterData.filter(row => 
-        row["Encounter Type"] === type && 
-        row["Encounter Card"] === card &&
-        parseInt(row["Modified Roll"]) === roll
-    );
-
-    // Apply specific logic for Character/Terrain
-    if (type === "Character") {
-        const time = document.getElementById('timeOfDay').value;
-        matches = matches.filter(row => row["Time of Day"] === time);
-    } else if (type === "Terrain") {
-        const terrain = document.getElementById('terrainKey').value;
-        matches = matches.filter(row => row["Terrain Key"] === terrain);
-    }
-
-    if (matches.length > 0) {
-        const resultArea = document.getElementById('results-area');
-        const nameDiv = document.getElementById('realEncounterName');
-        const btnContainer = document.getElementById('reactionButtons');
-        
-        resultArea.classList.remove('hidden');
-        document.getElementById('finalParagraph').classList.add('hidden');
-        btnContainer.innerHTML = '';
-
-        // Real Encounter Logic
-        let realName = matches[0]["Text"];
-        if (type === "Character") realName += " " + matches[0]["Encounter Card"];
-        nameDiv.innerText = realName;
-
-        // Show reactions
-        matches.forEach(m => {
-            const btn = document.createElement('button');
-            btn.className = 'reaction-btn';
-            btn.innerText = m["Encounter Reaction Choices"];
-            btn.onclick = () => {
-                document.getElementById('finalParagraph').classList.remove('hidden');
-                document.getElementById('paraValue').innerText = m["Paragraph"];
-            };
-            btnContainer.appendChild(btn);
-        });
-    } else {
-        alert("No match found for this combination!");
-    }
+    if (type === "Character") charPath.style.display = 'block';
+    if (type === "Terrain") terrainPath.style.display = 'block';
 }
